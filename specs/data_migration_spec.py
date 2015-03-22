@@ -14,6 +14,10 @@ VER1 = 'ver1'
 VER2 = 'ver2'
 VER3 = 'ver3'
 
+class MigrationFileNotFoundError(Exception):
+    def __init__(self, dest):
+        self.dest = dest
+
 
 class Migration(object):
     def __init__(self, dataschema, filesystem=os, subprocess_module=subprocess, logger=logging.getLogger()):
@@ -28,20 +32,23 @@ class Migration(object):
         versions, extension = os.path.splitext(file)
         return versions.split('_')
 
-
     def migrate_to(self, dest_version):
-        actual_schema_version = self.dataschema.actual_schema()
-        files = sorted(self.filesystem.listdir(self.basepath + '/'))
-        migrations_to_execute = self._select_migrations(files, actual_schema_version, dest_version)
+        try:
+            actual_schema_version = self.dataschema.actual_schema()
+            files = sorted(self.filesystem.listdir(self.basepath + '/'))
+            migrations_to_execute = self._select_migrations(files, actual_schema_version, dest_version)
 
-        for migration in migrations_to_execute:
-            self._execute_migration(migration)
+            for migration in migrations_to_execute:
+                self._execute_migration(migration)
+        except MigrationFileNotFoundError as exc:
+            self.logger.info("error migration not found to migrate to {}".format(exc.dest))
 
     def _find_file_with_destination(self, dest, files):
         for f in reversed(files):
             initial_version, destination_version = self.extract_versions_from_file(f)
             if destination_version == dest:
                 return f
+        raise MigrationFileNotFoundError(dest)
 
     def _execute_migration(self, migration):
             return_value =self.subprocess_module.call(['python', os.path.join(self.basepath, migration)])
@@ -64,6 +71,7 @@ class Migration(object):
                 break
             else:
                 dest_version = ini_ver
+
         return reversed(migrations_to_execute)
 
 
@@ -132,3 +140,20 @@ with describe('Data migration'):
 
             expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/%s_%s.py' % (VER1, VER2)]))
             expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/%s_%s.py' % (VER2, VER3)]))
+
+        with context('when a migration is missing'):
+            with it('does not execute any migration'):
+                when(self.fs).listdir('migrations/').returns(['ver2_ver3.py', 'ver3_ver4.py'])
+                when(self.dataschema).actual_schema().returns(VER1)
+
+                self.migration.migrate_to(VER3)
+
+                expect(self.subprocess.call).not_to(have_been_called)
+
+            with it('log an error message'):
+                when(self.fs).listdir('migrations/').returns(['ver2_ver3.py', 'ver3_ver4.py'])
+                when(self.dataschema).actual_schema().returns(VER1)
+
+                self.migration.migrate_to(VER3)
+
+                expect(self.logger.info).to(have_been_called_with(contain('error', 'migration not found', VER2)))
