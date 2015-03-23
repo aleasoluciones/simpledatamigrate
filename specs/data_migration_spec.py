@@ -19,7 +19,7 @@ class MigrationFileNotFoundError(Exception):
         self.dest = dest
 
 
-class Migration(object):
+class Migrator(object):
     def __init__(self, dataschema, filesystem=os, subprocess_module=subprocess, logger=logging.getLogger()):
         self.dataschema = dataschema
         self.subprocess_module = subprocess_module
@@ -73,13 +73,13 @@ class Migration(object):
 
         return reversed(migrations_to_execute)
 
-with describe('Data migration'):
+with describe('Data migrator'):
     with before.each:
         self.fs = Spy()
         self.dataschema = Spy()
         self.subprocess = Spy()
         self.logger = Spy()
-        self.migration = Migration(self.dataschema, filesystem=self.fs, subprocess_module=self.subprocess, logger=self.logger)
+        self.migration = Migrator(self.dataschema, filesystem=self.fs, subprocess_module=self.subprocess, logger=self.logger)
 
     with context('when no initial data/schema'):
         with it('execute migration from no schema to initial version'):
