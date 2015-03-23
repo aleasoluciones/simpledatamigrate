@@ -10,12 +10,12 @@ class MigrationFileNotFoundError(Exception):
 
 
 class Migrator(object):
-    def __init__(self, dataschema, filesystem=os, subprocess_module=subprocess, logger=logging.getLogger()):
+    def __init__(self, dataschema, collector, subprocess_module=subprocess, logger=logging.getLogger()):
         self.dataschema = dataschema
         self.subprocess_module = subprocess_module
         self.basepath = 'migrations'
         self.logger = logger
-        self.filesystem = filesystem
+        self.collector = collector
 
     def extract_versions_from_file(self, file):
         versions, extension = os.path.splitext(file)
@@ -24,7 +24,7 @@ class Migrator(object):
     def migrate_to(self, dest_version):
         try:
             actual_schema_version = self.dataschema.actual_schema()
-            files = sorted(self.filesystem.listdir(self.basepath + '/'))
+            files = self.collector.migrations()
             migrations_to_execute = self._select_migrations(files, actual_schema_version, dest_version)
 
             for migration in migrations_to_execute:
