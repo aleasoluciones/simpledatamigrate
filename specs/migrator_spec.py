@@ -7,10 +7,10 @@ from doublex import *
 from simpledatamigrate import migrator, collector
 
 
-NO_SCHEMA = 'noschema'
-VER1 = 'ver1'
-VER2 = 'ver2'
-VER3 = 'ver3'
+NO_SCHEMA = None
+VER1 = '001'
+VER2 = '002'
+VER3 = '003'
 
 with describe('Migrator'):
     with before.each:
@@ -22,74 +22,58 @@ with describe('Migrator'):
 
     with context('when no initial data/schema'):
         with it('execute migration from no schema to initial version'):
-            when(self.collector).migrations().returns(['noschema_ver1.py'])
+            when(self.collector).migrations().returns(['migrations/001.py'])
             when(self.dataschema).actual_schema().returns(NO_SCHEMA)
 
             self.migration.migrate_to(VER1)
 
-            expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/%s_%s.py' % (NO_SCHEMA, VER1)]))
+            expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/001.py']))
 
-        with it('set the actual version to initial version'):
-            when(self.collector).migrations().returns(['noschema_ver1.py'])
+        with it('sets the actual version to initial version'):
+            when(self.collector).migrations().returns(['migrations/001.py'])
             when(self.dataschema).actual_schema().returns(NO_SCHEMA)
-            when(self.subprocess).call(['python', 'migrations/%s_%s.py' % (NO_SCHEMA, VER1)]).returns(0)
+            when(self.subprocess).call(['python', 'migrations/001.py']).returns(0)
 
             self.migration.migrate_to(VER1)
 
             expect(self.dataschema.set_actual_schema).to(have_been_called_with(VER1))
 
-        with it('log an message'):
-            when(self.collector).migrations().returns(['noschema_ver1.py'])
+        with it('logs an message'):
+            when(self.collector).migrations().returns(['migrations/001.py'])
             when(self.dataschema).actual_schema().returns(NO_SCHEMA)
-            when(self.subprocess).call(['python', 'migrations/%s_%s.py' % (NO_SCHEMA, VER1)]).returns(0)
+            when(self.subprocess).call(['python', 'migrations/001.py']).returns(0)
 
             self.migration.migrate_to(VER1)
 
-            expect(self.logger.info).to(have_been_called_with(contain(NO_SCHEMA, VER1)))
+            expect(self.logger.info).to(have_been_called_with(contain(VER1)))
             expect(self.logger.info).not_to(have_been_called_with(contain('error')))
 
         with context('when migration fails'):
             with it('does not  set the actual version'):
-                when(self.collector).migrations().returns(['noschema_ver1.py'])
+                when(self.collector).migrations().returns(['migrations/001.py'])
                 when(self.dataschema).actual_schema().returns(NO_SCHEMA)
-                when(self.subprocess).call(['python', 'migrations/%s_%s.py' % (NO_SCHEMA, VER1)]).returns(1)
+                when(self.subprocess).call(['python', 'migrations/001.py']).returns(1)
 
                 self.migration.migrate_to(VER1)
 
                 expect(self.dataschema.set_actual_schema).to_not(have_been_called_with(VER1))
 
             with it('log an error message'):
-                when(self.collector).migrations().returns(['noschema_ver1.py'])
+                when(self.collector).migrations().returns(['migrations/001.py'])
                 when(self.dataschema).actual_schema().returns(NO_SCHEMA)
-                when(self.subprocess).call(['python', 'migrations/%s_%s.py' % (NO_SCHEMA, VER1)]).returns(1)
+                when(self.subprocess).call(['python', 'migrations/001.py']).returns(1)
 
                 self.migration.migrate_to(VER1)
 
-                expect(self.logger.error).to(have_been_called_with(contain('Error', NO_SCHEMA, VER1)))
+                expect(self.logger.error).to(have_been_called_with(contain('Error', VER1)))
 
     with context('when two or more migrations required'):
         with it('execute the migrations'):
-            when(self.collector).migrations().returns(['ver2_ver3.py', 'ver3_ver4.py', 'ver1_ver2.py'])
+            when(self.collector).migrations().returns(['migrations/001.py', 'migrations/002.py', 'migrations/003.py'])
             when(self.dataschema).actual_schema().returns(VER1)
 
             self.migration.migrate_to(VER3)
 
-            expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/%s_%s.py' % (VER1, VER2)]))
-            expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/%s_%s.py' % (VER2, VER3)]))
+            expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/002.py']))
+            expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/003.py']))
 
-        with context('when a migration is missing'):
-            with it('does not execute any migration'):
-                when(self.collector).migrations().returns(['ver2_ver3.py', 'ver3_ver4.py'])
-                when(self.dataschema).actual_schema().returns(VER1)
-
-                self.migration.migrate_to(VER3)
-
-                expect(self.subprocess.call).not_to(have_been_called)
-
-            with it('log an error message'):
-                when(self.collector).migrations().returns(['ver2_ver3.py', 'ver3_ver4.py'])
-                when(self.dataschema).actual_schema().returns(VER1)
-
-                self.migration.migrate_to(VER3)
-
-                expect(self.logger.error).to(have_been_called_with(contain('Error', 'migration not found', VER2)))

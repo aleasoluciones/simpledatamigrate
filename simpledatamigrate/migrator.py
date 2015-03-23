@@ -13,53 +13,42 @@ class Migrator(object):
     def __init__(self, dataschema, collector, subprocess_module=subprocess, logger=logging.getLogger()):
         self.dataschema = dataschema
         self.subprocess_module = subprocess_module
-        self.basepath = 'migrations'
         self.logger = logger
         self.collector = collector
 
-    def extract_versions_from_file(self, file):
-        versions, extension = os.path.splitext(file)
-        return versions.split('_')
+    def extract_versions_from_file(self, file_):
+        versions, extension = os.path.splitext(os.path.basename(file_))
+        return versions
 
-    def migrate_to(self, dest_version):
+    def migrate_to(self, target_version):
         try:
             actual_schema_version = self.dataschema.actual_schema()
-            files = self.collector.migrations()
-            migrations_to_execute = self._select_migrations(files, actual_schema_version, dest_version)
+            migrations = self.collector.migrations()
+            migrations_to_execute = self._select_migrations(migrations, actual_schema_version, target_version)
 
             for migration in migrations_to_execute:
                 self._execute_migration(migration)
         except MigrationFileNotFoundError as exc:
             self.logger.error("Error migration not found to migrate to {}".format(exc.dest))
 
-    def _find_file_with_destination(self, dest, files):
-        for f in reversed(files):
-            initial_version, destination_version = self.extract_versions_from_file(f)
-            if destination_version == dest:
-                return f
-        raise MigrationFileNotFoundError(dest)
+    def _select_migrations(self, migrations, actual_version, target_version):
+        return migrations[self._index_for_version(migrations, actual_version) : self._index_for_version(migrations, target_version)]
+
+    def _index_for_version(self, migrations, version):
+        if version is None:
+            return 0
+
+        for index, migration in enumerate(migrations):
+            if version in migration:
+                return index + 1
+        return -1
 
     def _execute_migration(self, migration):
-            return_value = self.subprocess_module.call(['python', os.path.join(self.basepath, migration)])
-            ini, dest = self.extract_versions_from_file(migration)
+        return_value = self.subprocess_module.call(['python', migration])
+        target = self.extract_versions_from_file(migration)
 
-            if return_value == 0:
-                self.dataschema.set_actual_schema(dest)
-                self.logger.info("Migration {} to {} executed".format(ini, dest))
-            else:
-                self.logger.error("Error executing migration from {} to {}".format(ini, dest))
-
-    def _select_migrations(self, files, actual_version, dest_version):
-        migrations_to_execute = []
-        version = dest_version
-        while True:
-            file_to_execute = self._find_file_with_destination(dest_version, files)
-            ini_ver, dest_version = self.extract_versions_from_file(file_to_execute)
-            migrations_to_execute.append(file_to_execute)
-            if ini_ver == actual_version:
-                break
-            else:
-                dest_version = ini_ver
-
-        return reversed(migrations_to_execute)
-
+        if return_value == 0:
+            self.dataschema.set_actual_schema(target)
+            self.logger.info("Migration {} executed".format(target))
+        else:
+            self.logger.error("Error executing migration {}".format(target))
