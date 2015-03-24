@@ -4,7 +4,7 @@ import os
 import subprocess
 import logging
 
-class MigrationFileNotFoundError(Exception):
+class MigrationExecutionError(Exception):
     def __init__(self, dest):
         self.dest = dest
 
@@ -28,8 +28,9 @@ class Migrator(object):
 
             for migration in migrations_to_execute:
                 self._execute_migration(migration)
-        except MigrationFileNotFoundError as exc:
-            self.logger.error("Error migration not found to migrate to {}".format(exc.dest))
+        except MigrationExecutionError as exc:
+            self.logger.error("Error executing migration {}".format(exc.dest))
+            raise
 
     def _select_migrations(self, migrations, actual_version, target_version):
         return migrations[self._index_for_version(migrations, actual_version) : self._index_for_version(migrations, target_version)]
@@ -51,4 +52,4 @@ class Migrator(object):
             self.dataschema.set_actual_schema(target)
             self.logger.info("Migration {} executed".format(target))
         else:
-            self.logger.error("Error executing migration {}".format(target))
+            raise MigrationExecutionError(target)

@@ -23,6 +23,7 @@ with describe('Migrator'):
     with context('when no initial data/schema'):
         with it('execute migration from no schema to initial version'):
             when(self.collector).migrations().returns(['migrations/001.py'])
+            when(self.subprocess).call(['python', 'migrations/001.py']).returns(0)
 
             self.migration.migrate_to(VER1)
 
@@ -46,25 +47,19 @@ with describe('Migrator'):
             expect(self.logger.info).not_to(have_been_called_with(contain('error')))
 
         with context('when migration fails'):
-            with it('does not  set the actual version'):
+
+            with it('it raises an error and log the error'):
                 when(self.collector).migrations().returns(['migrations/001.py'])
                 when(self.subprocess).call(['python', 'migrations/001.py']).returns(1)
 
-                self.migration.migrate_to(VER1)
-
-                expect(self.dataschema.actual_schema).to_not(be(VER1))
-
-            with it('log an error message'):
-                when(self.collector).migrations().returns(['migrations/001.py'])
-                when(self.subprocess).call(['python', 'migrations/001.py']).returns(1)
-
-                self.migration.migrate_to(VER1)
-
+                expect(lambda: self.migration.migrate_to(VER1)).to(raise_error(migrator.MigrationExecutionError))
                 expect(self.logger.error).to(have_been_called_with(contain('Error', VER1)))
 
     with context('when two or more migrations required'):
         with it('execute the migrations'):
             when(self.collector).migrations().returns(['migrations/001.py', 'migrations/002.py', 'migrations/003.py'])
+            when(self.subprocess).call(['python', 'migrations/002.py']).returns(0)
+            when(self.subprocess).call(['python', 'migrations/003.py']).returns(0)
             self.dataschema.set_actual_schema(VER1)
 
             self.migration.migrate_to(VER3)
