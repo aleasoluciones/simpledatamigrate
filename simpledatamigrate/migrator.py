@@ -16,7 +16,7 @@ class Migrator(object):
         self.logger = logger
         self.collector = collector
 
-    def extract_versions_from_file(self, file_):
+    def extract_version_from_file(self, file_):
         versions, extension = os.path.splitext(os.path.basename(file_))
         return versions
 
@@ -45,7 +45,7 @@ class Migrator(object):
 
     def _execute_migration(self, migration):
         return_value = self.subprocess_module.call(['python', migration])
-        target = self.extract_versions_from_file(migration)
+        target = self.extract_version_from_file(migration)
 
         if return_value == 0:
             self.dataschema.set_actual_schema(target)
