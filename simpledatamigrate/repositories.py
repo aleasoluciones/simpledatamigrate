@@ -4,13 +4,13 @@
 class SchemaVersionRepository(object):
 
     def __init__(self):
-        self.state = None
+        self._version = None
 
-    def actual_schema(self):
-        return self.state
+    def current_schema(self):
+        return self._version
 
-    def set_actual_schema(self, version):
-        self.state = version
+    def set_schema_version(self, version):
+        self._version = version
 
 
 class PostgresSchemaVersionRepository(object):
@@ -22,7 +22,7 @@ class PostgresSchemaVersionRepository(object):
         self._connection.autocommit = True
         self._create_table_if_not_exists()
 
-    def actual_schema(self):
+    def current_schema(self):
         with self._connection.cursor() as cursor:
             cursor.execute('select version from {table_name}'.format(table_name=self.TABLE_NAME))
             schema = cursor.fetchall()
@@ -30,14 +30,14 @@ class PostgresSchemaVersionRepository(object):
                 return None
             return schema[0][0]
 
-    def set_actual_schema(self, version):
-        if self.actual_schema() is None:
-            self._insert_actual_schema(version)
+    def set_schema_version(self, version):
+        if self.current_schema() is None:
+            self._insert_current_schema(version)
         else:
             with self._connection.cursor() as cursor:
                 cursor.execute('update {table_name} set version=(%s);'.format(table_name=self.TABLE_NAME), (version, ))
 
-    def _insert_actual_schema(self, version):
+    def _insert_current_schema(self, version):
         with self._connection.cursor() as cursor:
             cursor.execute('insert into {table_name} (version) values (%s);'.format(table_name=self.TABLE_NAME), (version, ))
 

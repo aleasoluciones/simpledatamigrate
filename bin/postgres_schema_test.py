@@ -10,7 +10,6 @@ def main():
 
     migrator.migrate_to(args.version)
 
-
 def _parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--version', action='store', required=True, help="set current schema version")

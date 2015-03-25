@@ -12,15 +12,15 @@ with describe('SchemaVersion repository'):
     with context('when query schema version'):
         with context('initial version case'):
             with it('returns none as initial schema version'):
-                version = self.data_schema.actual_schema()
+                version = self.data_schema.current_schema()
 
                 expect(version).to(be_none)
 
     with context('when change schema version'):
         with it('returns new state'):
                version = '001'
-               self.data_schema.set_actual_schema(version)
+               self.data_schema.set_schema_version(version)
 
-               actual_version = self.data_schema.actual_schema()
+               current_version = self.data_schema.current_schema()
 
-               expect(actual_version).to(be(version))
+               expect(current_version).to(be(version))

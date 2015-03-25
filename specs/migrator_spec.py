@@ -29,13 +29,13 @@ with describe('Migrator'):
 
             expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/001.py']))
 
-        with it('sets the actual version to initial version'):
+        with it('sets the current version to initial version'):
             when(self.collector).migrations().returns(['migrations/001.py'])
             when(self.subprocess).call(['python', 'migrations/001.py']).returns(0)
 
             self.migration.migrate_to(VER1)
 
-            expect(self.dataschema.actual_schema()).to(equal(VER1))
+            expect(self.dataschema.current_schema()).to(equal(VER1))
 
         with it('logs a message'):
             when(self.collector).migrations().returns(['migrations/001.py'])
@@ -60,7 +60,7 @@ with describe('Migrator'):
             when(self.collector).migrations().returns(['migrations/001.py', 'migrations/002.py', 'migrations/003.py'])
             when(self.subprocess).call(['python', 'migrations/002.py']).returns(0)
             when(self.subprocess).call(['python', 'migrations/003.py']).returns(0)
-            self.dataschema.set_actual_schema(VER1)
+            self.dataschema.set_schema_version(VER1)
 
             self.migration.migrate_to(VER3)
 

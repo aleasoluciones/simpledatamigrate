@@ -22,9 +22,9 @@ class Migrator(object):
 
     def migrate_to(self, target_version):
         try:
-            actual_schema_version = self.dataschema.actual_schema()
+            current_schema_version = self.dataschema.current_schema()
             migrations = self.collector.migrations()
-            migrations_to_execute = self._select_migrations(migrations, actual_schema_version, target_version)
+            migrations_to_execute = self._select_migrations(migrations, current_schema_version, target_version)
 
             for migration in migrations_to_execute:
                 self._execute_migration(migration)
@@ -32,8 +32,8 @@ class Migrator(object):
             self.logger.error("Error executing migration {}".format(exc.dest))
             raise
 
-    def _select_migrations(self, migrations, actual_version, target_version):
-        return migrations[self._index_for_version(migrations, actual_version) : self._index_for_version(migrations, target_version)]
+    def _select_migrations(self, migrations, current_version, target_version):
+        return migrations[self._index_for_version(migrations, current_version) : self._index_for_version(migrations, target_version)]
 
     def _index_for_version(self, migrations, version):
         if version is None:
@@ -49,7 +49,7 @@ class Migrator(object):
         target = self.extract_version_from_file(migration)
 
         if return_value == 0:
-            self.dataschema.set_actual_schema(target)
+            self.dataschema.set_schema_version(target)
             self.logger.info("Migration {} executed".format(target))
         else:
             raise MigrationExecutionError(target)
