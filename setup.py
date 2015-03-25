@@ -6,4 +6,12 @@ setup(name='simpledatamigrate',
       description='',
       platforms='Linux',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
-      scripts=[])
+      scripts=[],
+      install_requires=[line for line in open('requirements.txt')],
+      entry_points={
+
+          'console_scripts': [
+              'migrate = migrate:main'
+          ]
+
+      })
