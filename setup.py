@@ -9,9 +9,5 @@ setup(name='simpledatamigrate',
       scripts=[],
       install_requires=[line for line in open('requirements.txt')],
       entry_points={
-
-          'console_scripts': [
-              'migrate = migrate:main'
-          ]
-
+          'console_scripts': ['migrate = migrate.bin.postgres_schema_test:main']
       })
