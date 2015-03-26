@@ -25,7 +25,6 @@ class Migrator(object):
             current_schema_version = self.dataschema.current_schema()
             migrations = self.collector.migrations()
             migrations_to_execute = self._select_migrations(migrations, current_schema_version, target_version)
-
             for migration in migrations_to_execute:
                 self._execute_migration(migration)
         except MigrationExecutionError as exc:
@@ -50,6 +49,6 @@ class Migrator(object):
 
         if return_value == 0:
             self.dataschema.set_schema_version(target)
-            self.logger.info("Migration {} executed".format(target))
+            self.logger.info("Migration {} successfully executed".format(target))
         else:
             raise MigrationExecutionError(target)
