@@ -41,7 +41,7 @@ class Migrator(object):
         for index, migration in enumerate(migrations):
             if version in migration:
                 return index + 1
-        return -1
+        return None
 
     def _execute_migration(self, migration):
         return_value = self.subprocess_module.call(['python', migration])

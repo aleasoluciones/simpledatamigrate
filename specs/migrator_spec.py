@@ -98,3 +98,16 @@ with describe('Migrator'):
                 expect(self.subprocess.call).not_to(have_been_called_with(['python', 'migrations/001.py']))
                 expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/002.py']))
                 expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/003.py']))
+
+        with context('when exists a current version and asked version is greater than file_name versions'):
+            with it('execute the migrations since the latest migrate version to the latest possible migration'):
+                when(self.collector).migrations().returns(['migrations/001.py', 'migrations/002.py', 'migrations/003.py'])
+                when(self.subprocess).call(['python', 'migrations/002.py']).returns(0)
+                when(self.subprocess).call(['python', 'migrations/003.py']).returns(0)
+                self.dataschema.set_schema_version(VER1)
+
+                self.migration.migrate_to('042')
+
+                expect(self.subprocess.call).not_to(have_been_called_with(['python', 'migrations/001.py']))
+                expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/002.py']))
+                expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/003.py']))
