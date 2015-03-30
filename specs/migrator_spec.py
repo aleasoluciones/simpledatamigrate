@@ -25,7 +25,7 @@ with describe('Migrator'):
             when(self.collector).migrations().returns(['migrations/001.py'])
             when(self.subprocess).call(['python', 'migrations/001.py']).returns(0)
 
-            self.migration.migrate_to(VER1)
+            self.migration.migrate()
 
             expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/001.py']))
 
@@ -33,7 +33,7 @@ with describe('Migrator'):
             when(self.collector).migrations().returns(['migrations/001.py'])
             when(self.subprocess).call(['python', 'migrations/001.py']).returns(0)
 
-            self.migration.migrate_to(VER1)
+            self.migration.migrate()
 
             expect(self.dataschema.current_schema()).to(equal(VER1))
 
@@ -43,7 +43,7 @@ with describe('Migrator'):
                 when(self.collector).migrations().returns(['migrations/001.py'])
                 when(self.subprocess).call(['python', 'migrations/001.py']).returns(0)
 
-                self.migration.migrate_to(VER1)
+                self.migration.migrate()
 
                 expect(self.logger.info).to(have_been_called_with(contain(VER1)))
                 expect(self.logger.info).not_to(have_been_called_with(contain('error')))
@@ -53,23 +53,23 @@ with describe('Migrator'):
                 when(self.collector).migrations().returns(['migrations/001.py'])
                 when(self.subprocess).call(['python', 'migrations/001.py']).returns(1)
 
-                expect(lambda: self.migration.migrate_to(VER1)).to(raise_error(migrator.MigrationExecutionError))
+                expect(lambda: self.migration.migrate()).to(raise_error(migrator.MigrationExecutionError))
                 expect(self.logger.error).to(have_been_called_with(contain('Error', VER1)))
 
             with it('does not update current version'):
                 when(self.collector).migrations().returns(['migrations/001.py'])
                 when(self.subprocess).call(['python', 'migrations/001.py']).returns(1)
 
-                expect(lambda: self.migration.migrate_to(VER1)).to(raise_error(migrator.MigrationExecutionError))
+                expect(lambda: self.migration.migrate()).to(raise_error(migrator.MigrationExecutionError))
                 expect(self.dataschema.current_schema()).to(equal(None))
 
-        with context('when several migrations are required and the second one fails'):
+        with context('when several migrations are required and the first one fails'):
             with it('does not continue with the pending migrations'):
                 when(self.collector).migrations().returns(['migrations/001.py', 'migrations/002.py'])
                 when(self.subprocess).call(['python', 'migrations/001.py']).returns(1)
                 when(self.subprocess).call(['python', 'migrations/002.py']).returns(0)
 
-                expect(lambda: self.migration.migrate_to(VER2)).to(raise_error(migrator.MigrationExecutionError))
+                expect(lambda: self.migration.migrate()).to(raise_error(migrator.MigrationExecutionError))
                 expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/001.py']))
                 expect(self.subprocess.call).not_to(have_been_called_with(['python', 'migrations/002.py']))
 
@@ -80,7 +80,7 @@ with describe('Migrator'):
             when(self.subprocess).call(['python', 'migrations/002.py']).returns(0)
             when(self.subprocess).call(['python', 'migrations/003.py']).returns(0)
 
-            self.migration.migrate_to(VER3)
+            self.migration.migrate()
 
             expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/001.py']))
             expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/002.py']))
@@ -93,20 +93,7 @@ with describe('Migrator'):
                 when(self.subprocess).call(['python', 'migrations/003.py']).returns(0)
                 self.dataschema.set_schema_version(VER1)
 
-                self.migration.migrate_to(VER3)
-
-                expect(self.subprocess.call).not_to(have_been_called_with(['python', 'migrations/001.py']))
-                expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/002.py']))
-                expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/003.py']))
-
-        with context('when exists a current version and asked version is greater than file_name versions'):
-            with it('execute the migrations since the latest migrate version to the latest possible migration'):
-                when(self.collector).migrations().returns(['migrations/001.py', 'migrations/002.py', 'migrations/003.py'])
-                when(self.subprocess).call(['python', 'migrations/002.py']).returns(0)
-                when(self.subprocess).call(['python', 'migrations/003.py']).returns(0)
-                self.dataschema.set_schema_version(VER1)
-
-                self.migration.migrate_to('042')
+                self.migration.migrate()
 
                 expect(self.subprocess.call).not_to(have_been_called_with(['python', 'migrations/001.py']))
                 expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/002.py']))

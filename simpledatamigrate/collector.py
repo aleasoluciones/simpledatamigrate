@@ -12,5 +12,3 @@ class MigrationCollector(object):
 
     def _with_relative_path(self, migration):
         return os.path.join(os.path.relpath(self.folder), migration)
-
-

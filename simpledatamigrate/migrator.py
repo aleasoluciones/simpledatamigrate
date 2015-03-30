@@ -20,19 +20,19 @@ class Migrator(object):
         versions, extension = os.path.splitext(os.path.basename(file_))
         return versions
 
-    def migrate_to(self, target_version):
+    def migrate(self):
         try:
             current_schema_version = self.dataschema.current_schema()
             migrations = self.collector.migrations()
-            migrations_to_execute = self._select_migrations(migrations, current_schema_version, target_version)
+            migrations_to_execute = self._select_migrations(migrations, current_schema_version)
             for migration in migrations_to_execute:
                 self._execute_migration(migration)
         except MigrationExecutionError as exc:
             self.logger.error("Error executing migration {}".format(exc.dest))
             raise
 
-    def _select_migrations(self, migrations, current_version, target_version):
-        return migrations[self._index_for_version(migrations, current_version) : self._index_for_version(migrations, target_version)]
+    def _select_migrations(self, migrations, current_version):
+        return migrations[self._index_for_version(migrations, current_version) : None]
 
     def _index_for_version(self, migrations, version):
         if version is None:
