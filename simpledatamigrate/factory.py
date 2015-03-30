@@ -14,7 +14,7 @@ def create_postgres_migrator():
     )
 
     schema_version_repo = r.PostgresSchemaVersionRepository(connection)
-    migrations_folder = os.getenv('MIGRATIONS_FOLDER', 'migrations')
+    migrations_folder = os.environ['MIGRATIONS_FOLDER']
     collector = c.MigrationCollector(migrations_folder)
 
     return m.Migrator(schema_version_repo, collector)
