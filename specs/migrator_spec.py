@@ -49,12 +49,12 @@ with describe('Migrator'):
                 expect(self.logger.info).not_to(have_been_called_with(contain('error')))
 
         with context('when migration fails'):
-            with it('raises an error and log the error'):
+            with it('raises an error and log the critical log'):
                 when(self.collector).migrations().returns(['migrations/001.py'])
                 when(self.subprocess).call(['python', 'migrations/001.py']).returns(1)
 
                 expect(lambda: self.migration.migrate()).to(raise_error(migrator.MigrationExecutionError))
-                expect(self.logger.error).to(have_been_called_with(contain('Error', VER1)))
+                expect(self.logger.critical).to(have_been_called_with(contain('Error', VER1)))
 
             with it('does not update current version'):
                 when(self.collector).migrations().returns(['migrations/001.py'])

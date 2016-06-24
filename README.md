@@ -6,4 +6,8 @@ Migration file requirements
   * initial_<ver1>
   * <ver1>_<ver2>_<whatever>
 
-Best practices
+
+##How to run the tests
+Execute:
+1. `dev/setup_venv.sh`
+2. `unit-tests.sh`
