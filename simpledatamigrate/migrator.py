@@ -28,7 +28,7 @@ class Migrator(object):
             for migration in migrations_to_execute:
                 self._execute_migration(migration)
         except MigrationExecutionError as exc:
-            self.logger.error("Error executing migration {}".format(exc.dest))
+            self.logger.critical("Error executing migration {}".format(exc.dest))
             raise
 
     def _select_migrations(self, migrations, current_version):
