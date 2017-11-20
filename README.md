@@ -7,6 +7,7 @@ Migration file requirements
   * <ver1>_<ver2>_<whatever>
 
 
+
 ##How to run the tests
 Execute:
 1. `dev/setup_venv.sh`
