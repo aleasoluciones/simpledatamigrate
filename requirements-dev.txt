@@ -1,4 +1,4 @@
-mamba==0.8.4
-doublex==1.8.2
-expects==0.8.0rc1
-doublex-expects==0.7.0rc1
+mamba==0.9.2
+doublex==1.8.4
+expects==0.8
+doublex-expects==0.7.0rc2
