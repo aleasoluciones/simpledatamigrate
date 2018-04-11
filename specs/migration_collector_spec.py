@@ -8,7 +8,7 @@ from simpledatamigrate import collector as c
 
 with describe('MigrationCollector'):
     with context('when returning migrations'):
-        with it('returns older in first place'):
+        with it('returns python files with older in first place'):
             relative_path = os.path.relpath(os.path.join(os.path.dirname(__file__), 'fixtures/migrations'))
             collector = c.MigrationCollector(relative_path)
 
