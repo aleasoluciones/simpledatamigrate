@@ -11,6 +11,7 @@ NO_SCHEMA = None
 VER1 = '001'
 VER2 = '002'
 VER3 = '003'
+VER4 = '004'
 
 with describe('Migrator'):
     with before.each:
@@ -98,3 +99,17 @@ with describe('Migrator'):
                 expect(self.subprocess.call).not_to(have_been_called_with(['python', 'migrations/001.py']))
                 expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/002.py']))
                 expect(self.subprocess.call).to(have_been_called_with(['python', 'migrations/003.py']))
+
+            with context('when current version is bigger than hightest '):
+                with it('does not execute any migration'):
+                    when(self.collector).migrations().returns(['migrations/001.py', 'migrations/002.py', 'migrations/003.py'])
+                    when(self.subprocess).call(['python', 'migrations/001.py']).returns(0)
+                    when(self.subprocess).call(['python', 'migrations/002.py']).returns(0)
+                    when(self.subprocess).call(['python', 'migrations/003.py']).returns(0)
+                    self.dataschema.set_schema_version(VER4)
+
+                    self.migration.migrate()
+
+                    expect(self.subprocess.call).not_to(have_been_called_with(['python', 'migrations/001.py']))
+                    expect(self.subprocess.call).not_to(have_been_called_with(['python', 'migrations/002.py']))
+                    expect(self.subprocess.call).not_to(have_been_called_with(['python', 'migrations/003.py']))
