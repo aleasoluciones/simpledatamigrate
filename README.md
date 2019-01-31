@@ -8,7 +8,7 @@ Migration file requirements
 
 
 
-##How to run the tests
+## How to run the tests
 Execute:
 1. `dev/setup_venv.sh`
 2. `unit-tests.sh`
