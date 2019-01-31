@@ -5,9 +5,9 @@ setup(name='simpledatamigrate',
       author='Bifer Team',
       description='',
       platforms='Linux',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      packages=find_packages(exclude=['tests', 'integration_tests', 'specs', 'integration_specs']),
       scripts=[],
-      install_requires=[line for line in open('requirements.txt')],
+      install_requires=['psycopg2==2.7'],
       entry_points={
           'console_scripts': ['migrate = simpledatamigrate.postgres_schema_test:main']
       })
