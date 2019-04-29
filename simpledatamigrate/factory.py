@@ -2,7 +2,8 @@
 
 import os
 import psycopg2 as pg
-from simpledatamigrate import repositories as r, collector as c, migrator as m
+from simpledatamigrate import repositories, collector, migrator
+
 
 def create_postgres_migrator():
     connection = pg.connect(
@@ -13,9 +14,25 @@ def create_postgres_migrator():
         password=os.getenv('COMPONENT_DB_PASSWORD')
     )
 
-    schema_version_repo = r.PostgresSchemaVersionRepository(connection)
+    schema_version_repository = repositories.PostgresSchemaVersionRepository(connection)
     migrations_folder = os.environ['MIGRATIONS_FOLDER']
-    collector = c.MigrationCollector(migrations_folder)
+    migration_collector = collector.MigrationCollector(migrations_folder)
 
-    return m.Migrator(schema_version_repo, collector)
+    return migrator.Migrator(schema_version_repository, migration_collector)
 
+
+def create_test_postgres_migrator():
+    migration_test_db = 'migration_test_db'
+
+    connection = pg.connect(
+        host=os.getenv('COMPONENT_DB_HOST_ADDR'),
+        port=os.getenv('COMPONENT_DB_TCP_PORT'),
+        database=migration_test_db,
+        user=os.getenv('COMPONENT_DB_USER'),
+        password=os.getenv('COMPONENT_DB_PASSWORD')
+    )
+
+    database_repository = repositories.PostgresDatabaseRepository(connection)
+    migrator = create_postgres_migrator()
+
+    return migrator.TestMigrator(database_repository, migrator)

@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from expects import *
-from doublex import *
+from expects import expect, contain_exactly, contain
 
 import os
-from simpledatamigrate import collector as c
+from simpledatamigrate import collector
 
 with describe('MigrationCollector'):
     with context('when returning migrations'):
         with it('returns python files with older in first place'):
             relative_path = os.path.relpath(os.path.join(os.path.dirname(__file__), 'fixtures/migrations'))
-            collector = c.MigrationCollector(relative_path)
+            migration_collector = collector.MigrationCollector(relative_path)
 
-            migrations = collector.migrations()
+            migrations = migration_collector.migrations()
 
             expect(migrations).to(contain_exactly(
                 '{}/001.py'.format(relative_path),
@@ -22,9 +21,9 @@ with describe('MigrationCollector'):
 
         with it('returns migrations with relative path'):
             relative_path = os.path.relpath(os.path.join(os.path.dirname(__file__), 'fixtures/migrations'))
-            collector = c.MigrationCollector(relative_path)
+            migration_collector = collector.MigrationCollector(relative_path)
 
-            migrations = collector.migrations()
+            migrations = migration_collector.migrations()
 
             expect(migrations[0]).to(contain(relative_path))
             expect(migrations[1]).to(contain(relative_path))

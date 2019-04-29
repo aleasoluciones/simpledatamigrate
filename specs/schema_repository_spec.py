@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from expects import *
-from doublex import *
+from expects import expect, be_none, be
 
-from simpledatamigrate import repositories as r
+from simpledatamigrate import repositories
 
 with describe('SchemaVersion repository'):
     with before.each:
-        self.data_schema = r.SchemaVersionRepository()
+        self.data_schema = repositories.SchemaVersionRepository()
 
     with context('when query schema version'):
         with context('initial version case'):

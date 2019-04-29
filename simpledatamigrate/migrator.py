@@ -9,6 +9,10 @@ class MigrationExecutionError(Exception):
         self.dest = dest
 
 
+class DatabaseManipulationError(Exception):
+    pass
+
+
 class Migrator(object):
     def __init__(self, dataschema, collector, subprocess_module=subprocess, logger=logging.getLogger()):
         self.dataschema = dataschema
@@ -32,7 +36,7 @@ class Migrator(object):
             raise
 
     def _select_migrations(self, migrations, current_version):
-        return migrations[self._index_for_version(migrations, current_version) : None]
+        return migrations[self._index_for_version(migrations, current_version): None]
 
     def _index_for_version(self, migrations, version):
         if version is None:
@@ -52,3 +56,24 @@ class Migrator(object):
             self.logger.info("Migration {} successfully executed".format(target))
         else:
             raise MigrationExecutionError(target)
+
+
+class TestMigrator(object):
+    def __init__(self, database, migrator, logger=logging.getLogger()):
+        self.database = database
+        self.migrator = migrator
+        self.logger = logger
+
+    def test_migrate(self):
+        self._execute_database_manipulation_command(self.database.remove_test_database)
+        self._execute_database_manipulation_command(self.database.create_test_database)
+        self.migrator.migrate()
+        self._execute_database_manipulation_command(self.database.remove_test_database)
+
+    def _execute_database_manipulation_command(self, command):
+        try:
+            command()
+        except Exception as exc:
+            message = "Error executing database manipulation {}".format(exc)
+            self.logger.critical(message)
+            raise DatabaseManipulationError(message)

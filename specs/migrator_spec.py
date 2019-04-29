@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from expects import *
-from doublex_expects import *
-from doublex import *
+from expects import expect, equal, contain, raise_error
+from doublex_expects import have_been_called_with
+from doublex import Spy, when
 
-from simpledatamigrate import migrator, collector, repositories as r
+from simpledatamigrate import migrator, collector, repositories
 
 
 NO_SCHEMA = None
@@ -16,7 +16,7 @@ VER4 = '004'
 with describe('Migrator'):
     with before.each:
         self.collector = Spy(collector.MigrationCollector)
-        self.dataschema = r.SchemaVersionRepository()
+        self.dataschema = repositories.SchemaVersionRepository()
         self.subprocess = Spy()
         self.logger = Spy()
         self.migration = migrator.Migrator(self.dataschema, self.collector, subprocess_module=self.subprocess, logger=self.logger)
