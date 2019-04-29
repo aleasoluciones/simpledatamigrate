@@ -22,12 +22,10 @@ def create_postgres_migrator():
 
 
 def create_test_postgres_migrator():
-    migration_test_db = 'migration_test_db'
-
     connection = pg.connect(
         host=os.getenv('COMPONENT_DB_HOST_ADDR'),
         port=os.getenv('COMPONENT_DB_TCP_PORT'),
-        database=migration_test_db,
+        database=os.getenv('COMPONENT_DB_NAME'),
         user=os.getenv('COMPONENT_DB_USER'),
         password=os.getenv('COMPONENT_DB_PASSWORD')
     )

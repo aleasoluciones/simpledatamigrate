@@ -55,6 +55,7 @@ class PostgresSchemaVersionRepository(object):
 
 
 class PostgresDatabaseRepository(object):
+    TEST_DATABASE = 'test_database'
 
     def __init__(self, connection):
         self._connection = connection
@@ -62,8 +63,8 @@ class PostgresDatabaseRepository(object):
 
     def create_test_database(self):
         with self._connection.cursor() as cursor:
-            cursor.execute('CREATE DATABASE %s;', (self._connection.db_name, ))
+            cursor.execute('CREATE DATABASE %s;', (self.TEST_DATABASE, ))
 
     def remove_test_database(self):
         with self._connection.cursor() as cursor:
-            cursor.execute('DROP DATABASE IF EXISTS %s;', (self._connection.db_name, ))
+            cursor.execute('DROP DATABASE IF EXISTS %s;', (self.TEST_DATABASE, ))
