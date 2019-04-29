@@ -31,6 +31,6 @@ def create_test_postgres_migrator():
     )
 
     database_repository = repositories.PostgresDatabaseRepository(connection)
-    migrator = create_postgres_migrator()
+    postgres_migrator = create_postgres_migrator()
 
-    return migrator.TestMigrator(database_repository, migrator)
+    return migrator.TestMigrator(database_repository, postgres_migrator)
