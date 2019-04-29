@@ -24,7 +24,7 @@ class PostgresSchemaVersionRepository(object):
 
     def current_schema(self):
         with self._connection.cursor() as cursor:
-            cursor.execute('SELECT version FROM %s', (self.TABLE_NAME, ))
+            cursor.execute('SELECT version FROM {table_name}'.format(table_name=self.TABLE_NAME))
             schema = cursor.fetchall()
             if len(schema) == 0:
                 return None
@@ -35,12 +35,11 @@ class PostgresSchemaVersionRepository(object):
             self._insert_current_schema(version)
         else:
             with self._connection.cursor() as cursor:
-                cursor.execute('UPDATE %s SET version=(%s);', (self.TABLE_NAME, version, ))
+                cursor.execute('UPDATE {table_name} SET version=(%s);'.format(table_name=self.TABLE_NAME), (version, ))
 
     def _insert_current_schema(self, version):
         with self._connection.cursor() as cursor:
-            cursor.execute('INSERT INTO %s (version) VALUES (%s);', (self.TABLE_NAME, version, ))
-
+            cursor.execute('INSERT INTO {table_name} (version) VALUES (%s);'.format(table_name=self.TABLE_NAME), (version, ))
 
     def _create_table_if_not_exists(self):
         with self._connection.cursor() as cursor:
@@ -51,7 +50,7 @@ class PostgresSchemaVersionRepository(object):
 
     def _create_schema_version_table(self):
         with self._connection.cursor() as cursor:
-            cursor.execute('CREATE TABLE %s (id SERIAL PRIMARY KEY, version TEXT);', (self.TABLE_NAME, ))
+            cursor.execute('CREATE TABLE {table_name} (id SERIAL PRIMARY KEY, version TEXT);'.format(table_name=self.TABLE_NAME))
 
 
 class PostgresDatabaseRepository(object):
@@ -63,8 +62,8 @@ class PostgresDatabaseRepository(object):
 
     def create_test_database(self):
         with self._connection.cursor() as cursor:
-            cursor.execute('CREATE DATABASE %s;', (self.TEST_DATABASE, ))
+            cursor.execute('CREATE DATABASE {};'.format(self.TEST_DATABASE))
 
     def remove_test_database(self):
         with self._connection.cursor() as cursor:
-            cursor.execute('DROP DATABASE IF EXISTS %s;', (self.TEST_DATABASE, ))
+            cursor.execute('DROP DATABASE IF EXISTS {};'.format(self.TEST_DATABASE))
