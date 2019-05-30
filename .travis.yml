@@ -17,3 +17,7 @@ install:
 
 script:
   - mamba
+
+notifications:
+  email:
+    - bifer@alea-soluciones.com
