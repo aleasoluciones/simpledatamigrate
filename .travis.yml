@@ -11,6 +11,11 @@ python:
   - '3.5'
   - '3.6'
 
+# safelist branch to build
+branches:
+  only:
+      - master
+
 install:
   - python setup.py develop
   - pip install -r requirements-dev.txt
