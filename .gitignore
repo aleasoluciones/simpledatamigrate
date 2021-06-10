@@ -67,6 +67,7 @@ target/
 Session.vim
 .netrwhist
 *~
+tags
 
 #PyCharm
 .idea
