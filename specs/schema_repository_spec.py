@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-
+from mamba import description, context, it, before
 from expects import expect, be_none, be
 
 from simpledatamigrate import repositories
 
-with describe('SchemaVersion repository'):
+with description('SchemaVersion repository') as self:
     with before.each:
         self.data_schema = repositories.SchemaVersionRepository()
 

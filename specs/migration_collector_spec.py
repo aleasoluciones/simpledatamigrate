@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-
+from mamba import description, context, it
 from expects import expect, contain_exactly, contain
 
 import os
 from simpledatamigrate import collector
 
-with describe('MigrationCollector'):
+with description('MigrationCollector') as self:
     with context('when returning migrations'):
         with it('returns python files with older in first place'):
             relative_path = os.path.relpath(os.path.join(os.path.dirname(__file__), 'fixtures/migrations'))

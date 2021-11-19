@@ -1,24 +1,28 @@
 language: python
 
-matrix:
-  include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
-python:
-  - '3.6'
+os: linux
 
-# safelist branch to build
+dist: focal
+
+language: python
+
+python:
+  - '3.7'
+  - '3.8'
+  - '3.9'
+
 branches:
   only:
-      - master
+    - master
 
 install:
-  - python setup.py develop
-  - pip install -r requirements-dev.txt
+  - python -m pip install --no-cache-dir --upgrade pip wheel setuptools
+  - python -m pip install --no-cache-dir -r requirements-versioned.txt
+  - python -m pip install --no-cache-dir -r requirements-dev.txt
+  - python -m pip install -e .
 
 script:
-  - mamba
+  - unit_tests
 
 notifications:
   email:

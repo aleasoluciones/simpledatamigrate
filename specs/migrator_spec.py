@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+from mamba import description, context, it, before
 from expects import expect, equal, contain, raise_error
 from doublex_expects import have_been_called_with
 from doublex import Spy, when
@@ -13,7 +12,7 @@ VER2 = '002'
 VER3 = '003'
 VER4 = '004'
 
-with describe('Migrator'):
+with description('Migrator') as self:
     with before.each:
         self.collector = Spy(collector.MigrationCollector)
         self.dataschema = repositories.SchemaVersionRepository()

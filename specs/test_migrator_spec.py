@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+from mamba import description, context, it, before
 from expects import expect, equal, contain, raise_error
 from doublex_expects import have_been_called, have_been_called_with
 from doublex import Spy, when
@@ -7,7 +6,7 @@ from doublex import Spy, when
 from simpledatamigrate import migrator, repositories
 
 
-with describe('Test Migrator'):
+with description('Test Migrator') as self:
     with before.each:
         self.database = Spy(repositories.PostgresDatabaseRepository)
         self.migrator = Spy(migrator.Migrator)

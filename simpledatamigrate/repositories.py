@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 class SchemaVersionRepository(object):
 
     def __init__(self):
