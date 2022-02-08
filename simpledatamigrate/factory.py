@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 import os
-import psycopg2 as pg
+import psycopg
 from simpledatamigrate import repositories, collector, migrator
 
 
 def create_postgres_migrator():
-    connection = pg.connect(
+    connection = psycopg.connect(
         host=os.getenv('COMPONENT_DB_HOST_ADDR'),
         port=os.getenv('COMPONENT_DB_TCP_PORT'),
-        database=os.getenv('COMPONENT_DB_NAME'),
+        dbname=os.getenv('COMPONENT_DB_NAME'),
         user=os.getenv('COMPONENT_DB_USER'),
         password=os.getenv('COMPONENT_DB_PASSWORD')
     )
@@ -22,10 +22,10 @@ def create_postgres_migrator():
 
 
 def create_test_postgres_migrator():
-    connection = pg.connect(
+    connection = psycopg.connect(
         host=os.getenv('COMPONENT_DB_HOST_ADDR'),
         port=os.getenv('COMPONENT_DB_TCP_PORT'),
-        database=os.getenv('COMPONENT_DB_NAME'),
+        dbname=os.getenv('COMPONENT_DB_NAME'),
         user=os.getenv('COMPONENT_DB_USER'),
         password=os.getenv('COMPONENT_DB_PASSWORD')
     )
