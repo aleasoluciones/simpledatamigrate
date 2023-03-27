@@ -1,6 +1,8 @@
 # simpledatamigrate
 
-[![Build status](https://travis-ci.com/aleasoluciones/simpledatamigrate.svg?branch=master)](https://travis-ci.com/aleasoluciones/simpledatamigrate) ![Python versions supported](https://img.shields.io/badge/supports%20python-3.7%20|%203.8%20|%203.9-blue.svg)
+[![CI](https://github.com/aleasoluciones/simpledatamigrate/actions/workflows/ci.yml/badge.svg)](https://github.com/aleasoluciones/simpledatamigrate/actions/workflows/ci.yml)
+
+[!Python versions supported](https://img.shields.io/badge/supports%20python-3.7%20|%203.8%20|%203.9-blue.svg)
 
 ## Development
 
