@@ -7,7 +7,7 @@ setup(name='simpledatamigrate',
       platforms='Linux',
       packages=find_packages(exclude=['specs']),
       scripts=[],
-      install_requires=['psycopg==3.0.8'],
+      install_requires=['psycopg==3.2.12'],
       entry_points={
           'console_scripts': ['migrate = simpledatamigrate.postgres_schema:main',
                               'test_migrate = simpledatamigrate.test_postgres_schema:main']
